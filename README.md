@@ -27,11 +27,13 @@ Press [N] in 3D Viewport to toggle the right side bar
 ## Features
 
 ### FBX Exporter
-Export maked Blender collection as seperate FBX files
 
-The collection name will be used as the filename for the fbx.
-
-Because Blender only allows unique names, the FBX Exporter removes all automatically added numbers (like ".002") for Dockingpoints (**Empty** objects starting with a **"DP_"*) during the export process, to allow the same Dockingpoint name on multiple FBX files.
+Similar to the Blender batch exporter, but with some important adjustments.
+- Quick enable/disable the collection for export independant of selections
+- collection name will be used as FBX name
+- Because Blender only allows unique names, the FBX Exporter removes all automatically added numbers (like ".002") for Dockingpoints (**Empty** objects starting with a **"DP_"*) during the export process, to allow the same Dockingpoint name on multiple FBX files.
+- Quickly re-export many assets by a single button click
+- Early quality check of the mesh data
 
 1. Select top level collections to export by enable/disable the ![Render](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_icon_render.PNG) icon in the layer tree view.
     - The collection list in FBX Exporter Panel is instantly updated
