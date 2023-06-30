@@ -1,6 +1,9 @@
 # Blender Plugin
-... to simplify the FBX asset workflow
-This plugin has been specially optimized for preparing assets for the Tacton VizStudio
+... to simplify the FBX asset workflow.
+
+This plugin has been specially optimized for preparing 3D assets for the Tacton VizStudio.
+
+But this is not a product component. Tacton is not responsible for this plugin.
 
 - [Installation](README.md#installation)
 - [Features](README.md#features)
@@ -57,3 +60,4 @@ Before clicking the button select all the mesh objects in the 3D scene, that sho
 And additionally, select as last the mesh object the material assigment should be copied from.
 
 (the last selection is visible by a lighter orange outline color)
+
