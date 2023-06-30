@@ -2,10 +2,10 @@
 to simplify the FBX asset workflow in Blender
 
 
-- ![Installation](README.md#Installation)
-- ![Features](README.md#Features)
-  - ![FBX Exporter](README.md#FBX%20Exporter)
-  - ![Material Helper](README.md#Material%20Helper)
+- ![Installation](README.md#installation)
+- ![Features](README.md#features)
+  - ![FBX Exporter](README.md#fbx-exporter)
+  - ![Material Helper](README.md#material-helper)
 
 ## Installation
 1. Download the latest .py file from github
