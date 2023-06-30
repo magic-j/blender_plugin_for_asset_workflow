@@ -3,7 +3,7 @@ bl_info = {
     "blender": (3, 1, 2),
     "category": "Object",
     "author": "Jonas Brügner",
-    "location": "3D View -> sidebar right [N]",
+    "location": "3D Viewport -> sidebar right [N]",
     "description": "nice tools for daily work ..."
 }
 
@@ -52,54 +52,75 @@ class Button_ExportAllCollectionsAsFbx(bpy.types.Operator):
     def ShowMessageBox(self, message = "", title = "Message Box", icon = 'INFO'):
         
         def draw(self, context):
-            self.layout.label(text=message)
+            self.layout.active_default = True
+            lines = message.split("\n")
+            for line in lines:
+                self.layout.label(text=line)
 
         bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
     
+    def fixDockingPointNamesInCollection(self, collection):
+        # Check all dockingpoints to remove numeration suffixes
+        for obj in collection.all_objects:
+            if obj.type == "EMPTY" and obj.name.startswith('DP_'):   # only Dockingpoints                    
+                if re.match(".*\\.[0-9]{3}$", obj.name):   # DP name has numeration suffix
+                    baseName = obj.name[:-4]                        
+                    if bpy.data.objects.get(baseName):   # set name of other DP without numeration suffix to old name, if exists 
+                        bpy.data.objects[baseName].name = obj.name
+                    print("fix DP '" + obj.name + "' to '" + baseName + "'")                        
+                    obj.name = baseName   # remove numeration suffix
+    
+    def exportFBX(self, fbxPath):
+        # Export all mesh+empty of collection to fbx :
+        bpy.ops.export_scene.fbx(
+            filepath=fbxPath,
+            use_active_collection=True,
+            object_types={'EMPTY', 'MESH'},
+            bake_anim=False,
+            bake_anim_use_all_bones=False
+        );
+    
     def execute(self, context):
         scene = context.scene
-        
-        #filepath = self.filepath
-        
+                
         filepath = context.scene.folder_select_prop.path
-        filepath = bpy.path.abspath(filepath)
-        filepath = os.path.normpath(filepath)        
-        print('export each collection to this folder : ', filepath)
+        if (filepath == ""):
+            self.ShowMessageBox("Please define a export directory !", " Export failed!", "ERROR")
+            return {'CANCELLED'}
+        
+        filepath = bpy.path.abspath(filepath) # fix relative path
+        filepath = os.path.normpath(filepath) # remove all /../ 
+        
+        if (not os.path.exists(filepath)):
+            self.ShowMessageBox("Please define a valid export directory !", " Export failed!", "ERROR")
+            return {'CANCELLED'}
+        
+        print('Start Export FBX files : ', filepath)
         
         context.scene.folder_select_prop.path = filepath
-        count = 0
         fbxNames = []
         for collection in bpy.data.collections:
             if collection.hide_render:
-                continue        
-            # Set collection to active            
+                continue         
             layerCollection = bpy.context.view_layer.layer_collection.children[collection.name]
-            context.view_layer.active_layer_collection = layerCollection
-            # Check all dockingpoints to remove numeration suffixes
-            for obj in collection.all_objects:
-                if obj.type == "EMPTY" and obj.name.startswith('DP_'):   # only Dockingpoints                    
-                    if re.match(".*\\.[0-9]{3}$", obj.name):   # DP name has numeration suffix
-                        baseName = obj.name[:-4]                        
-                        if bpy.data.objects.get(baseName):   # set name of other DP without numeration suffix to old name, if exists 
-                            bpy.data.objects[baseName].name = obj.name
-                        print("fix DP '" + obj.name + "' to '" + baseName + "'")                        
-                        obj.name = baseName   # remove numeration suffix            
-            # Export all mesh+empty of collection to fbx :
+            context.view_layer.active_layer_collection = layerCollection # Set collection to active            
+            self.fixDockingPointNamesInCollection(collection)            
             fbxNames.append(collection.name + ".fbx")
-            fbx_path = filepath + collection.name + ".fbx"
-            fbx_path = bpy.path.abspath(fbx_path)
-            bpy.ops.export_scene.fbx(filepath=fbx_path, use_active_collection=True, object_types={'EMPTY', 'MESH'}, bake_anim=False, bake_anim_use_all_bones=False);
-            count += 1
+            fbx_path = bpy.path.abspath(filepath + collection.name + ".fbx")
+            self.exportFBX(fbxPath=fbx_path);
             
-        message = str(count) + " collection(s) exported:\r"
-        #for fbxName in fbxNames:
-        #    message += fbxName + "\r"
-        self.ShowMessageBox(message, "=== Export done ===", "INFO")
+        if (len(fbxNames) == 0):            
+            self.ShowMessageBox("Please define the collections to export by enabling their RENDER icon in layer tree view!", " Export failed!", "ERROR")
+            return {'CANCELLED'}
+            
+        message = str(len(fbxNames)) + " collection(s) exported:\n"
+        for fbxName in fbxNames:
+            message += "\n" + fbxName
+        self.ShowMessageBox(message, " Export done", "INFO")
         
         return {'FINISHED'}            # Lets Blender know the operator finished successfully.
-    
 
-       
+   
 class JbrMenuPanel_FbxExport(bpy.types.Panel):
     bl_idname = 'VIEW_3D_PT_jbr_fbxexporter_panel'
     bl_label = 'FBX Exporter'
@@ -130,10 +151,8 @@ class JbrMenuPanel_FbxExport(bpy.types.Panel):
                 if (matCount == 0 or obj.data.materials[0] is None):
                     self.createErrorEntry(grid, collection.name, "MATERIAL", "No material on mesh '" + meshName + "'", not error)
                     error = True
-              
                         
         return error
-    
     
     def createErrorEntry(self, parent, collectionName, _icon, _text, isFirst):
         if (isFirst):
@@ -239,8 +258,7 @@ def menu_func_build(self, context):
     self.layout.menu(JbrMenuPanel_FbxExport.bl_idname)
     self.layout.menu(JbrMenuPanel_MaterialHelper.bl_idname)
 
-def register():
-    
+def register():    
     bpy.utils.register_class(FolderSelect)
     bpy.utils.register_class(Button_ExportAllCollectionsAsFbx)
     bpy.utils.register_class(Button_SelectAllObjectsWithoutMaterial)
