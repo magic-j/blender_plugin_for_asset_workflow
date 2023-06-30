@@ -1,6 +1,6 @@
 # Blender Plugin
-to simplify the FBX asset workflow in Blender
-
+... to simplify the FBX asset workflow
+This plugin has been specially optimized for preparing assets for the Tacton VizStudio
 
 - [Installation](README.md#installation)
 - [Features](README.md#features)
