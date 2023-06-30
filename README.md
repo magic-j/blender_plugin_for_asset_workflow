@@ -3,7 +3,8 @@
 
 This plugin has been specially optimized for preparing 3D assets for the Tacton VizStudio.
 
-But this is not a product component. Tacton is not responsible for this plugin.
+But this is not a product component.
+Tacton is not responsible for this plugin.
 
 - [Installation](README.md#installation)
 - [Features](README.md#features)
