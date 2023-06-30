@@ -15,10 +15,20 @@ This plugin has been specially optimized for preparing assets for the Tacton Viz
 5. Press the [install] button and select the downloaded .py file
 6. Enable the plugin by the checkbox in front of the plugin
 
+After the installation is done, you can find the new functionallities in a new tab [**JBR Tools**] in the right side bar of the 3D Viewport.
+
+![JBR Tools](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_JBR_Tools.PNG)
+
+Press [N] in 3D Viewport to toggle the right side bar
+
 ## Features
 
 ### FBX Exporter
 Export maked Blender collection as seperate FBX files
+
+The collection name will be used as the filename for the fbx.
+
+Because Blender only allows unique names, the FBX Exporter removes all automatically added numbers (like ".002") for Dockingpoints (**Empty** objects starting with a **"DP_"*) during the export process, to allow the same Dockingpoint name on multiple FBX files.
 
 1. Select top level collections to export by enable/disable the ![Render](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_icon_render.PNG) icon in the layer tree view.
     - The collection list in FBX Exporter Panel is instantly updated
@@ -31,7 +41,6 @@ Export maked Blender collection as seperate FBX files
 3. Define Target Directory
     - ![Target Dir](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_FbxExporter_targetDir.PNG)
 4. Press [**Export**]
-    - The collection name will be used as the filename for the fbx.
 
 
 ### Material Helper
