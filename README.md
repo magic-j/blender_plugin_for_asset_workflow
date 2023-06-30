@@ -1,11 +1,11 @@
 # Blender Plugin
-to simplify the FBX asset workflow in Blender
+... to simplify the FBX asset workflow
+This plugin has been specially optimized for preparing assets for the Tacton VizStudio
 
-
-- [Installation]
-- [Features]
-  - [FBX Exporter]
-  - [Material Helper]
+- [Installation](README.md#installation)
+- [Features](README.md#features)
+  - [FBX Exporter](README.md#fbx-exporter)
+  - [Material Helper](README.md#material-helper)
 
 ## Installation
 1. Download the latest .py file from github
@@ -20,21 +20,31 @@ to simplify the FBX asset workflow in Blender
 ### FBX Exporter
 Export maked Blender collection as seperate FBX files
 
-1. Select collection to export by enable/disable the [Render] icon in the layer tree view.
-2. Check for warning message in the top and fix them.
-(Otherwise this can make problems for the later usage of the assets)
-  - Missing material assigments
-  - Missing UV maps
-  - Multi instances of same mesh
+1. Select top level collections to export by enable/disable the ![Render](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_icon_render.PNG) icon in the layer tree view.
+    - The collection list in FBX Exporter Panel is instantly updated
+2. Check for warning message in the top  
+    - Fix them, otherwise this can make problems for the later usage of the assets)
+    - ![Warnings](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_FbxExporter_warnings.PNG)
+        - Missing material assigments
+        - Missing UV maps
+        - Multi instances of same mesh
 3. Define Target Directory
+    - ![Target Dir](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_FbxExporter_targetDir.PNG)
 4. Press [**Export**]
-
-The collection name will be used as the filename for the fbx.
+    - The collection name will be used as the filename for the fbx.
 
 
 ### Material Helper
 Buttons to speed up the material workflow
 
-[**Select objects WITHOUT material**]
+![MaterialHelper](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_MaterialHelper.PNG)
 
-[**COPY mateiral from selected**]
+#### Select objects WITHOUT material
+All visible mesh objects in the 3D scene gets selected, if they have no material assigned
+
+#### COPY material from selected
+Before clicking the button select all the mesh objects in the 3D scene, that should receive a new material.
+
+And additionally, select as last the mesh object the material assigment should be copied from.
+
+(the last selection is visible by a lighter orange outline color)
