@@ -1,0 +1,1 @@
+# blender_plugin_for_asset_workflow
