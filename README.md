@@ -29,12 +29,12 @@ Press [N] in 3D Viewport to toggle the right side bar
 
 ### FBX Exporter
 
-Similar to the Blender batch exporter, but with some important adjustments.
-- Quick enable/disable the collection for export independant of selections
-- collection name will be used as FBX name
-- Because Blender only allows unique names, the FBX Exporter removes all automatically added numbers (like ".002") for Dockingpoints (**Empty** objects starting with a **"DP_"*) during the export process, to allow the same Dockingpoint name on multiple FBX files.
-- Quickly re-export many assets by a single button click
-- Early quality check of the mesh data
+    Similar to the Blender batch exporter, but with some important adjustments.
+    - Quick enable/disable the collection for export independant of selections
+    - collection name will be used as FBX name
+    - Because Blender only allows unique names, the FBX Exporter removes all automatically added numbers (like ".002") for Dockingpoints (**Empty** objects starting with a **"DP_"*) during the export process, to allow the same Dockingpoint name on multiple FBX files.
+    - Quickly re-export many assets by a single button click
+    - Early quality check of the mesh data
 
 1. Select top level collections to export by enable/disable the ![Render](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_icon_render.PNG) icon in the layer tree view.
     - The collection list in FBX Exporter Panel is instantly updated
@@ -56,25 +56,25 @@ Buttons to speed up the material workflow
 
 
 #### Select objects WITHOUT material
-All visible mesh objects in the 3D scene gets selected, if they have no material assigned
+    All visible mesh objects in the 3D scene gets selected, if they have no material assigned
 
 #### COPY material from selected
-Before clicking the button select all the mesh objects in the 3D scene, that should receive a new material.
-
-And additionally, select as last the mesh object the material assigment should be copied from.
-
-(the last selection is visible by a lighter orange outline color)
+    Before clicking the button select all the mesh objects in the 3D scene, that should receive a new material.
+    
+    And additionally, select as last the mesh object the material assigment should be copied from.
+    
+    (the last selection is visible by a lighter orange outline color)
 
 #### SEPARATE Multi-Mat meshes
-Before clicking the button select all the mesh objects in the 3D scene, that should be updated.
-(Only works in Object mode.)
-
-All selected mesh objects with Multi-Materials are getting separated into sub-mesh objects with only one material assignment
-
-The names of the new mesh objects contain the respective material name
+    Before clicking the button select all the mesh objects in the 3D scene, that should be updated.
+    (Only works in Object mode.)
+    
+    All selected mesh objects with Multi-Materials are getting separated into sub-mesh objects with only one material assignment
+    
+    The names of the new mesh objects contain the respective material name
 
 #### REMOVE material duplicates
-all  materials in the curent blend file are validated
-if a material ends with a number (like .002) and another material with the same base name exists:
-- the material is deleted
-- all meshes with the material assigned are getting updated with the base material
+    all  materials in the curent blend file are validated
+    if a material ends with a number (like .002) and another material with the same base name exists:
+    - the material is deleted
+    - all meshes with the material assigned are getting updated with the base material
