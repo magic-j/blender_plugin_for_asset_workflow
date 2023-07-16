@@ -14,6 +14,8 @@ from bpy_extras.io_utils import ImportHelper
 import textwrap
 
 
+from bpy.types import bpy_prop_collection
+
 ###############################################################################################
 #  3D Viewport Menu
 ###############################################################################################
@@ -164,8 +166,8 @@ class JbrMenuPanel_FbxExport(bpy.types.Panel):
         row.label(text=_text,icon=_icon,translate=False);
     
     def draw(self, context):
-        layout = self.layout        
-        
+        layout = self.layout      
+                
         box = layout.box()
         row = box.row()
         row.label(text="", icon="INFO")
@@ -192,8 +194,6 @@ class JbrMenuPanel_FbxExport(bpy.types.Panel):
         col.prop(context.scene.folder_select_prop, "path", text="")
         
         layout.operator(Button_ExportAllCollectionsAsFbx.bl_idname, icon="EXPORT")
-
-
         
 
 ###############################################################################################
@@ -202,9 +202,11 @@ class JbrMenuPanel_FbxExport(bpy.types.Panel):
 
 class Button_SelectAllObjectsWithoutMaterial(bpy.types.Operator):
     bl_idname = "object.select_objects_without_material"
-    bl_label = "Select objects WITHOUT material"
+    bl_label = "Select meshes WITHOUT material"
+    bl_description = "Select all the mesh objects in the scene without a material assignment"
 
     def execute(self, context):
+        print('Button_SelectAllObjectsWithoutMaterial')
         scene = context.scene
         
         bpy.ops.object.select_all(action='DESELECT')
@@ -224,10 +226,158 @@ class Button_SelectAllObjectsWithoutMaterial(bpy.types.Operator):
 
 class Button_CopyMaterialFromSelected(bpy.types.Operator):
     bl_idname = "object.copy_material_from_selected"
-    bl_label = "COPY material from selected"
+    bl_label = "COPY material from selected mesh"
+    bl_description = "Assigning the first material of the main selection to all the other selected mesh objects"
+
 
     def execute(self, context):
+        print('Button_CopyMaterialFromSelected')
         bpy.ops.object.make_links_data(type="MATERIAL")
+        return {'FINISHED'}
+    
+
+class Button_SeparateSelectedMeshesMultiMaterials(bpy.types.Operator):
+    bl_idname = "object.separate_meshes_multi_materials"
+    bl_label = "SEPARATE Multi-Mat meshes"
+    bl_description = "SEPARATE all selected mesh objects with Multi-Materials into sub-mesh objects with only one material assignment"
+
+    def ShowMessageBox(self, message = "", title = "Message Box", icon = 'INFO'):
+        
+        def draw(self, context):
+            self.layout.active_default = True
+            lines = message.split("\n")
+            for line in lines:
+                self.layout.label(text=line)
+
+        bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
+
+    def separateMultiMatMesh(self, obj):
+        meshName = obj.data.name
+        matCount = len(obj.data.materials)
+        print(obj.name, ': separate mesh ', meshName, ' with ', str(matCount), " materials")
+        bpy.ops.object.select_all(action='DESELECT')
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
+
+        new_mesh_objects = []
+        
+        for index, mat in enumerate(obj.data.materials):        
+            bpy.ops.object.mode_set(mode='EDIT')    
+            
+            print("slot", str(index), ":", mat.name)
+            faceMaterialIndicies = [x.material_index for x in obj.data.polygons]
+            if not index in faceMaterialIndicies:
+                print("   No faces selected, material " + str(index) + " '" + mat.name + "' not assigned")    
+                continue
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.context.object.active_material_index = index
+            bpy.ops.object.material_slot_select()
+            bpy.ops.mesh.separate(type='SELECTED')
+            print(" - sub mesh separated!")
+            
+            for o in bpy.context.selected_objects:
+                if not o == bpy.context.active_object:
+                    newName = bpy.context.active_object.name + "_" + mat.name
+                    print(" - rename '" + o.name + "' :", newName)
+                    o.name = newName
+                    new_mesh_objects.append(o)
+                    
+            bpy.ops.object.mode_set(mode='OBJECT')
+            bpy.ops.object.select_all(action='DESELECT')
+            bpy.context.view_layer.objects.active = obj
+            obj.select_set(True)
+            
+        bpy.ops.object.mode_set(mode='OBJECT')
+                
+        for o in new_mesh_objects:
+            print("clean up materials of", o.name)
+            bpy.ops.object.select_all(action='DESELECT')
+            bpy.context.view_layer.objects.active = o
+            o.select_set(True)
+            bpy.ops.object.material_slot_remove_unused()
+
+        print("delete ", obj.name)
+        bpy.ops.object.select_all(action='DESELECT')
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
+        bpy.ops.object.delete(use_global=False, confirm=False)
+
+    def execute(self, context):
+        print('Button_SeparateSelectedMeshesMultiMaterials')
+        
+        selected_objects = bpy.context.selected_objects
+        
+        if len(selected_objects) < 1:
+            self.ShowMessageBox("Please select one or more mesh objects", " Action failed!", "ERROR")
+            return {'CANCELLED'}
+        
+        if not bpy.context.object.mode == 'OBJECT':
+            self.ShowMessageBox("Please switch to object mode", " Action failed!", "ERROR")
+            return {'CANCELLED'}
+        
+        bpy.ops.object.select_all(action='DESELECT')
+        for obj in selected_objects:
+            if not obj.type == "MESH":
+                continue
+
+            if len(obj.data.materials) > 1:
+                self.separateMultiMatMesh(obj)    
+        
+        return {'FINISHED'}
+        
+class Button_RemoveMaterialDuplicates(bpy.types.Operator):
+    bl_idname = "object.remove_material_duplicates"
+    bl_label = "REMOVE material duplicates"
+    bl_description = "REMOVE all materials that are duplicates and fixes the assigment of all users"
+
+    def ShowMessageBox(self, message = "", title = "Message Box", icon = 'INFO'):
+        def draw(self, context):
+            self.layout.active_default = True
+            lines = message.split("\n")
+            for line in lines:
+                self.layout.label(text=line)
+
+        bpy.context.window_manager.popup_menu(draw, title = title, icon = icon)
+
+    def search(self, ID):
+        def users(col):
+            ret = tuple(repr(o) for o in col if o.user_of_id(ID))
+            return ret if ret else None
+        return filter(
+            None,
+            (
+                users(getattr(bpy.data, p)) 
+                for p in  dir(bpy.data) 
+                if isinstance(
+                    getattr(bpy.data, p, None), 
+                    bpy_prop_collection
+                )                
+            )
+        )
+
+    def execute(self, context):
+        print('Button_RemoveMaterialDuplicates')
+                
+        allMaterials = bpy.data.materials
+        
+        for mat in allMaterials:
+            if mat.is_grease_pencil:
+                continue
+            if not re.match(".*\\.[0-9]{3}$", mat.name):
+                continue
+            baseMatName = mat.name[:-4]
+            if not baseMatName in allMaterials:
+                print("No base material found for :", mat.name)
+                continue
+                
+            print(mat.name, ":", str(mat.users))
+            print("new name:", baseMatName)
+            
+            mat.user_remap(allMaterials[baseMatName])
+            bpy.data.materials.remove(mat)
+        
         return {'FINISHED'}
     
 class JbrMenuPanel_MaterialHelper(bpy.types.Panel):
@@ -247,6 +397,10 @@ class JbrMenuPanel_MaterialHelper(bpy.types.Panel):
         layout.operator(Button_SelectAllObjectsWithoutMaterial.bl_idname,  icon="NODE_MATERIAL")        
         
         layout.operator(Button_CopyMaterialFromSelected.bl_idname,  icon="COPYDOWN")
+        
+        layout.operator(Button_SeparateSelectedMeshesMultiMaterials.bl_idname,  icon="MATERIAL_DATA")    
+
+        layout.operator(Button_RemoveMaterialDuplicates.bl_idname,  icon="GHOST_DISABLED") 
 
 
 
@@ -263,6 +417,8 @@ def register():
     bpy.utils.register_class(Button_ExportAllCollectionsAsFbx)
     bpy.utils.register_class(Button_SelectAllObjectsWithoutMaterial)
     bpy.utils.register_class(Button_CopyMaterialFromSelected)
+    bpy.utils.register_class(Button_SeparateSelectedMeshesMultiMaterials)
+    bpy.utils.register_class(Button_RemoveMaterialDuplicates)
     bpy.utils.register_class(JbrMenuPanel_MaterialHelper)
     bpy.utils.register_class(JbrMenuPanel_FbxExport)
     
@@ -279,6 +435,8 @@ def unregister():
     bpy.utils.unregister_class(Button_ExportAllCollectionsAsFbx)
     bpy.utils.unregister_class(Button_SelectAllObjectsWithoutMaterial)
     bpy.utils.unregister_class(Button_CopyMaterialFromSelected)
+    bpy.utils.unregister_class(Button_SeparateSelectedMeshesMultiMaterials)
+    bpy.utils.unregister_class(Button_RemoveMaterialDuplicates)
     bpy.utils.unregister_class(JbrMenuPanel_MaterialHelper)
     bpy.utils.unregister_class(JbrMenuPanel_FbxExport)
     

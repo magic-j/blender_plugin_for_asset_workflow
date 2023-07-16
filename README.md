@@ -64,3 +64,16 @@ And additionally, select as last the mesh object the material assigment should b
 
 (the last selection is visible by a lighter orange outline color)
 
+#### SEPARATE Multi-Mat meshes
+Before clicking the button select all the mesh objects in the 3D scene, that should be updated.
+(Only works in Object mode.)
+
+All selected mesh objects with Multi-Materials are getting separated into sub-mesh objects with only one material assignment
+
+The names of the new mesh objects contain the respective material name
+
+#### REMOVE material duplicates
+all  materials in the curent blend file are validated
+if a material ends with a number (like .002) and another material with the same base name exists:
+- the material is deleted
+- all meshes with the material assigned are getting updated with the base material
