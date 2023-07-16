@@ -54,6 +54,7 @@ Buttons to speed up the material workflow
 
 ![MaterialHelper](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_MaterialHelper.PNG)
 
+
 #### Select objects WITHOUT material
 All visible mesh objects in the 3D scene gets selected, if they have no material assigned
 
