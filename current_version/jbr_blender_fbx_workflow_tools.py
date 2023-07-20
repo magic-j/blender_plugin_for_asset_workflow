@@ -108,7 +108,7 @@ class Button_ExportAllCollectionsAsFbx(bpy.types.Operator):
             context.view_layer.active_layer_collection = layerCollection # Set collection to active            
             self.fixDockingPointNamesInCollection(collection)            
             fbxNames.append(collection.name + ".fbx")
-            fbx_path = bpy.path.abspath(filepath + collection.name + ".fbx")
+            fbx_path = bpy.path.abspath(filepath + "\\" + collection.name + ".fbx")
             self.exportFBX(fbxPath=fbx_path);
             
         if (len(fbxNames) == 0):            
