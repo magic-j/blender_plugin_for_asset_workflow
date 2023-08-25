@@ -41,8 +41,7 @@ class FolderSelect(bpy.types.PropertyGroup):
         default="",
         maxlen=1024,
         subtype='DIR_PATH')
-        
-        
+  
 
 #class Button_ExportAllCollectionsAsFbx(bpy.types.Operator, ImportHelper):
 class Button_ExportAllCollectionsAsFbx(bpy.types.Operator):
@@ -121,7 +120,6 @@ class Button_ExportAllCollectionsAsFbx(bpy.types.Operator):
         self.ShowMessageBox(message, " Export done", "INFO")
         
         return {'FINISHED'}            # Lets Blender know the operator finished successfully.
-
    
 class JbrMenuPanel_FbxExport(bpy.types.Panel):
     bl_idname = 'VIEW_3D_PT_jbr_fbxexporter_panel'
@@ -194,7 +192,170 @@ class JbrMenuPanel_FbxExport(bpy.types.Panel):
         col.prop(context.scene.folder_select_prop, "path", text="")
         
         layout.operator(Button_ExportAllCollectionsAsFbx.bl_idname, icon="EXPORT")
+       
+
+###############################################################################################
+#  FBX Importer
+###############################################################################################
+
+class Button_ImportFbxAsCollections(bpy.types.Operator, ImportHelper):
+    bl_idname = "object.import_fbx_as_collections"
+    bl_label = "batch IMPORT FBX"
+    bl_description = "Import all selected FBX and create a new collection for each"
+
+    filter_glob: bpy.props.StringProperty(
+        default='*.fbx',
+        options={'HIDDEN'}
+    )
+
+    directory: bpy.props.StringProperty(
+        options={'HIDDEN'}
+    )
+
+    files: bpy.props.CollectionProperty(
+        #name='File paths',
+        type=bpy.types.OperatorFileListElement,
+        options={'HIDDEN', 'SKIP_SAVE'}
+    )
+
+    def importFbxAsCollection(self, fbxPath, collectionName):
+        # Export all mesh+empty of collection to fbx :
         
+        bpy.ops.object.select_all(action='DESELECT')
+        
+        bpy.ops.import_scene.fbx(
+            filepath = fbxPath
+        );
+        imported_objecs = bpy.context.selected_objects
+
+        collection = bpy.context.blend_data.collections.new(name=collectionName)
+        bpy.context.collection.children.link(collection)
+
+
+        for obj in imported_objecs:
+            for coll in obj.users_collection:
+                # Unlink the object
+                coll.objects.unlink(obj)
+            
+            collection.objects.link(obj)
+        
+    
+    def execute(self, context):
+        print('\nButton_ImportFbxAsCollections')
+
+        
+        #if not os.path.isdir(import_dir):
+        #    self.report({'WARNING'}, "Please select a directory")
+        #    return {'CANCELLED'}
+
+        bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection
+
+        for fileElement in self.files:
+            filename, extension = os.path.splitext(fileElement.name)
+            fbxPath = self.directory + fileElement.name
+            print(fbxPath)            
+            if not os.path.isfile(fbxPath):
+                self.report({'WARNING'}, "Please select a file")
+                return {'CANCELLED'}
+            self.importFbxAsCollection(fbxPath, filename)
+
+        bpy.ops.object.select_all(action='DESELECT')
+
+        bpy.ops.object.remove_material_duplicates()
+
+        return {'FINISHED'}
+
+
+class Button_ImportFolderRecursiveAsCollections(bpy.types.Operator, ImportHelper):
+    bl_idname = "object.import_folder_recursive_as_collections"
+    bl_label = "batch IMPORT FOLDER"
+    bl_description = "Import all FBX recursively from a selected directory and create a new collection for each"
+
+    use_filter_folder = True
+
+    def importFbxAsCollection(self, fbxPath, collectionName):
+        # Export all mesh+empty of collection to fbx :
+        
+        bpy.ops.object.select_all(action='DESELECT')
+        
+        bpy.ops.import_scene.fbx(
+            filepath = fbxPath
+        );
+        imported_objecs = bpy.context.selected_objects
+
+        collection = bpy.context.blend_data.collections.new(name=collectionName)
+        bpy.context.collection.children.link(collection)
+
+
+        for obj in imported_objecs:
+            for coll in obj.users_collection:
+                # Unlink the object
+                coll.objects.unlink(obj)
+            
+            collection.objects.link(obj)
+
+    def importFolder(self, directory, path):
+        print("import folder : ", directory)
+        files = os.listdir(directory)
+        for file in files:
+            if not os.path.isdir(directory + file):
+                filename, extension = os.path.splitext(file)
+                if extension == ".fbx":
+                    fbxPath = directory + file
+                    print(fbxPath)
+                    if not path == "":
+                        filename = path + "\\" + filename
+                    self.importFbxAsCollection(fbxPath, filename)
+            else:
+                newPath = file
+                if not path == "":
+                    newPath = path + "\\" + newPath
+                self.importFolder(directory + file + "\\", newPath)
+
+    def execute(self, context):
+        print('\nButton_ImportFolderRecursiveAsCollections')
+        
+        bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection
+
+        import_dir = self.properties.filepath
+
+        if not os.path.isdir(import_dir):
+            self.report({'WARNING'}, "Please select a directory")
+            return {'CANCELLED'}
+            
+        self.importFolder(import_dir, "")
+        
+        #for fileElement in self.files:
+        #    filename, extension = os.path.splitext(fileElement.name)
+        #    fbxPath = self.directory + fileElement.name
+        #    print(fbxPath)
+        #    self.importFbxAsCollection(fbxPath, filename)
+
+        context.scene.folder_select_prop.path = import_dir
+
+        bpy.ops.object.select_all(action='DESELECT')
+
+        bpy.ops.object.remove_material_duplicates()
+
+        return {'FINISHED'}
+
+class JbrMenuPanel_FbxImporter(bpy.types.Panel):
+    bl_idname = 'VIEW_3D_PT_jbr_fbximporter_panel'
+    bl_label = 'FBX Importer'
+    bl_description = "Scripted operations by JonasB."
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "JBR Tools"
+    
+    def draw_header(self, context):
+        layout = self.layout
+        
+    def draw(self, context):
+        layout = self.layout
+        
+        layout.operator(Button_ImportFbxAsCollections.bl_idname,  icon="IMPORT")
+        
+        layout.operator(Button_ImportFolderRecursiveAsCollections.bl_idname,  icon="IMPORT")
 
 ###############################################################################################
 #  Material Helper
@@ -409,17 +570,21 @@ class JbrMenuPanel_MaterialHelper(bpy.types.Panel):
 ###############################################################################################
 
 def menu_func_build(self, context):    
-    self.layout.menu(JbrMenuPanel_FbxExport.bl_idname)
     self.layout.menu(JbrMenuPanel_MaterialHelper.bl_idname)
+    self.layout.menu(JbrMenuPanel_FbxImporter.bl_idname)
+    self.layout.menu(JbrMenuPanel_FbxExport.bl_idname)
 
 def register():    
     bpy.utils.register_class(FolderSelect)
     bpy.utils.register_class(Button_ExportAllCollectionsAsFbx)
+    bpy.utils.register_class(Button_ImportFbxAsCollections)
+    bpy.utils.register_class(Button_ImportFolderRecursiveAsCollections)
     bpy.utils.register_class(Button_SelectAllObjectsWithoutMaterial)
     bpy.utils.register_class(Button_CopyMaterialFromSelected)
     bpy.utils.register_class(Button_SeparateSelectedMeshesMultiMaterials)
     bpy.utils.register_class(Button_RemoveMaterialDuplicates)
     bpy.utils.register_class(JbrMenuPanel_MaterialHelper)
+    bpy.utils.register_class(JbrMenuPanel_FbxImporter)
     bpy.utils.register_class(JbrMenuPanel_FbxExport)
     
     bpy.types.Scene.folder_select_prop = bpy.props.PointerProperty(type=FolderSelect)
@@ -433,11 +598,14 @@ def unregister():
     
     bpy.utils.unregister_class(FolderSelect)
     bpy.utils.unregister_class(Button_ExportAllCollectionsAsFbx)
+    bpy.utils.unregister_class(Button_ImportFbxAsCollections)
+    bpy.utils.unregister_class(Button_ImportFolderRecursiveAsCollections)
     bpy.utils.unregister_class(Button_SelectAllObjectsWithoutMaterial)
     bpy.utils.unregister_class(Button_CopyMaterialFromSelected)
     bpy.utils.unregister_class(Button_SeparateSelectedMeshesMultiMaterials)
     bpy.utils.unregister_class(Button_RemoveMaterialDuplicates)
     bpy.utils.unregister_class(JbrMenuPanel_MaterialHelper)
+    bpy.utils.unregister_class(JbrMenuPanel_FbxImporter)
     bpy.utils.unregister_class(JbrMenuPanel_FbxExport)
     
 
