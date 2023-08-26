@@ -219,7 +219,7 @@ class Button_ImportFbxAsCollections(bpy.types.Operator, ImportHelper):
     )
 
     def importFbxAsCollection(self, fbxPath, collectionName):
-        # Export all mesh+empty of collection to fbx :
+        # Import all mesh+empty of collection to fbx :
         
         bpy.ops.object.select_all(action='DESELECT')
         
@@ -241,14 +241,17 @@ class Button_ImportFbxAsCollections(bpy.types.Operator, ImportHelper):
             collection.objects.link(obj)       
             
             if not obj.type == 'EMPTY' and not obj.type == 'MESH':
-                obj.delete()     
+                bpy.ops.object.select_all(action='DESELECT')
+                obj.select_set(True)     
+                bpy.ops.object.delete()
+                continue
             
             if (not obj.parent == None):
+                bpy.ops.object.select_all(action='DESELECT')
+                obj.select_set(True)                
                 bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
             
-            if obj.type == 'EMPTY':              
-                
-                print(obj.name, obj.parent)
+            if obj.type == 'EMPTY':                
                 bpy.ops.object.select_all(action='DESELECT')
                 obj.select_set(True)                
                 bpy.ops.object.transform_apply(scale=True,   location=False, rotation=False, properties=False, isolate_users=False)
@@ -271,6 +274,10 @@ class Button_ImportFbxAsCollections(bpy.types.Operator, ImportHelper):
 
         bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection
 
+        file_count = len(self.files)
+        file_index = 0
+        bpy.context.window_manager.progress_begin(0, file_count)
+
         for fileElement in self.files:
             filename, extension = os.path.splitext(fileElement.name)
             fbxPath = self.directory + fileElement.name
@@ -279,10 +286,14 @@ class Button_ImportFbxAsCollections(bpy.types.Operator, ImportHelper):
                 self.report({'WARNING'}, "Please select a file")
                 return {'CANCELLED'}
             self.importFbxAsCollection(fbxPath, filename)
+            file_index += 1            
+            bpy.context.window_manager.progress_update(file_index)
 
         bpy.ops.object.select_all(action='DESELECT')
 
         bpy.ops.object.remove_material_duplicates()
+
+        bpy.context.window_manager.progress_end()
 
         return {'FINISHED'}
 
@@ -295,7 +306,7 @@ class Button_ImportFolderRecursiveAsCollections(bpy.types.Operator, ImportHelper
     use_filter_folder = True
 
     def importFbxAsCollection(self, fbxPath, collectionName):
-        # Export all mesh+empty of collection to fbx :
+        # Import all mesh+empty of collection to fbx :
         
         bpy.ops.object.select_all(action='DESELECT')
         
@@ -317,14 +328,17 @@ class Button_ImportFolderRecursiveAsCollections(bpy.types.Operator, ImportHelper
             collection.objects.link(obj)
             
             if not obj.type == 'EMPTY' and not obj.type == 'MESH':
-                obj.delete()    
+                bpy.ops.object.select_all(action='DESELECT')
+                obj.select_set(True)     
+                bpy.ops.object.delete()
+                continue
             
             if (not obj.parent == None):
+                bpy.ops.object.select_all(action='DESELECT')
+                obj.select_set(True)       
                 bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
             
-            if obj.type == 'EMPTY':              
-                
-                print(obj.name, obj.parent)
+            if obj.type == 'EMPTY':
                 bpy.ops.object.select_all(action='DESELECT')
                 obj.select_set(True)                
                 bpy.ops.object.transform_apply(scale=True,   location=False, rotation=False, properties=False, isolate_users=False)
