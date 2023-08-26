@@ -232,12 +232,33 @@ class Button_ImportFbxAsCollections(bpy.types.Operator, ImportHelper):
         bpy.context.collection.children.link(collection)
 
 
-        for obj in imported_objecs:
+        for obj in imported_objecs:            
+        
             for coll in obj.users_collection:
                 # Unlink the object
                 coll.objects.unlink(obj)
+                
+            collection.objects.link(obj)       
             
-            collection.objects.link(obj)
+            if not obj.type == 'EMPTY' and not obj.type == 'MESH':
+                obj.delete()     
+            
+            if (not obj.parent == None):
+                bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            
+            if obj.type == 'EMPTY':              
+                
+                print(obj.name, obj.parent)
+                bpy.ops.object.select_all(action='DESELECT')
+                obj.select_set(True)                
+                bpy.ops.object.transform_apply(scale=True,   location=False, rotation=False, properties=False, isolate_users=False)
+                
+                if obj.name.startswith('DP_'):
+                    obj.empty_display_type = 'ARROWS'
+                    obj.empty_display_size = 0.1
+                else:                    
+                    obj.empty_display_type = 'SPHERE'
+                    obj.empty_display_size = 0.02
         
     
     def execute(self, context):
@@ -285,14 +306,35 @@ class Button_ImportFolderRecursiveAsCollections(bpy.types.Operator, ImportHelper
 
         collection = bpy.context.blend_data.collections.new(name=collectionName)
         bpy.context.collection.children.link(collection)
+        
 
-
-        for obj in imported_objecs:
+        for obj in imported_objecs:            
+        
             for coll in obj.users_collection:
                 # Unlink the object
                 coll.objects.unlink(obj)
-            
+                
             collection.objects.link(obj)
+            
+            if not obj.type == 'EMPTY' and not obj.type == 'MESH':
+                obj.delete()    
+            
+            if (not obj.parent == None):
+                bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            
+            if obj.type == 'EMPTY':              
+                
+                print(obj.name, obj.parent)
+                bpy.ops.object.select_all(action='DESELECT')
+                obj.select_set(True)                
+                bpy.ops.object.transform_apply(scale=True,   location=False, rotation=False, properties=False, isolate_users=False)
+                
+                if obj.name.startswith('DP_'):
+                    obj.empty_display_type = 'ARROWS'
+                    obj.empty_display_size = 0.1
+                else:                    
+                    obj.empty_display_type = 'SPHERE'
+                    obj.empty_display_size = 0.02
 
     def importFolder(self, directory, path):
         print("import folder : ", directory)
