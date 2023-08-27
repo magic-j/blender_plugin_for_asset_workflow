@@ -56,7 +56,7 @@ Two different Buttons for importing FBX files
 
 For each imported FBX a new collection will be created with the filename of the FBX.
 
-Additionaly there is an optimization process running on the imported nodes:
+In addition, an optimization process runs on the imported nodes:
 1. Delete everything that is not a MESH or a EMPTY
 2. Apply scale on every node
 3. Remove parenting of nodes (flat)
@@ -69,7 +69,7 @@ Additionaly there is an optimization process running on the imported nodes:
 
 #### batch IMPORT FOLDER
     Select folder to recursivly import all included FBX files
-    The collection name will also contain the relative of the FBX
+    The collection name will also contain the relative file path of the FBX
 
 
 ### Material Helper
