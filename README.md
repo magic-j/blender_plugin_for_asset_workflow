@@ -48,6 +48,28 @@ Press [N] in 3D Viewport to toggle the right side bar
     - ![Target Dir](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_FbxExporter_targetDir.PNG)
 4. Press [**Export**]
 
+### FBX Importer
+Two different Buttons for importing FBX files
+
+![Warnings](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_FbxImporter.PNG)
+
+For each imported FBX a new collection will be created with the filename of the FBX.
+
+Additionaly there is an optimization process running on the imported nodes:
+    1. Delete everything that is not a MESH or a EMPTY
+    2. Apply scale on ever node
+    3. Remove parenting of nodes (flat)
+    4. Set consistent EMPTY display mode & scale
+    5. After the import is finished "REMOVE material duplicates" is called
+
+#### batch IMPORT FBX
+    Select one or more FBX files to import
+
+
+#### batch IMPORT FOLDER
+    Select folder to recursivly import all included FBX files
+    The collection name will also contain the relative of the FBX
+
 
 ### Material Helper
 Buttons to speed up the material workflow
