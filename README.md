@@ -49,6 +49,8 @@ Press [N] in 3D Viewport to toggle the right side bar
     - ![Target Dir](https://github.com/magic-j/blender_plugin_for_asset_workflow/blob/main/images/blender_FbxExporter_targetDir.PNG)
 4. Press [**Export**]
 
+---
+
 ### FBX Importer
 Two different Buttons for importing FBX files
 
@@ -71,6 +73,7 @@ In addition, an optimization process runs on the imported nodes:
     Select folder to recursivly import all included FBX files
     The collection name will also contain the relative file path of the FBX
 
+---
 
 ### Material Helper
 Buttons to speed up the material workflow
