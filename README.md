@@ -9,6 +9,7 @@ Tacton is not responsible for this plugin.
 - [Installation](README.md#installation)
 - [Features](README.md#features)
   - [FBX Exporter](README.md#fbx-exporter)
+  - [FBX Importer](README.md#fbx-importer)
   - [Material Helper](README.md#material-helper)
 
 ## Installation
@@ -57,9 +58,9 @@ For each imported FBX a new collection will be created with the filename of the 
 
 Additionaly there is an optimization process running on the imported nodes:
 1. Delete everything that is not a MESH or a EMPTY
-2. Apply scale on ever node
+2. Apply scale on every node
 3. Remove parenting of nodes (flat)
-4. Set consistent EMPTY display mode & scale
+4. Set consistent display mode & scale for EMPTY's
 5. After the import is finished "REMOVE material duplicates" is called
 
 #### batch IMPORT FBX
