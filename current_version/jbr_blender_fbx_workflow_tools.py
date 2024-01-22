@@ -224,6 +224,9 @@ class Button_ImportFbxAsCollections(bpy.types.Operator, ImportHelper):
         bpy.ops.object.select_all(action='DESELECT')
         
         bpy.ops.import_scene.fbx(
+            use_anim = False,
+            # global_scale = 1.0,
+            # bake_space_transform = False,
             filepath = fbxPath
         );
         imported_objecs = bpy.context.selected_objects
